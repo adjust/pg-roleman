@@ -5,6 +5,12 @@ $$
 select string_to_array(lower(array_to_string(in_array, ':~:')), ':~:');
 $$;
 
+comment on array_lower(text[]) is
+$$Takes in an array of text elements and returns
+an array of text elements in lower case.  Intended for use
+with whitelisting SQL keywords, so elements must not contain
+the string ':~:'$$;
+
 CREATE OR REPLACE FUNCTION create_role(in_rolename text, in_attrs itext[])
 RETURNS bool LANGUAGE plpgsql as
 $$
@@ -22,7 +28,9 @@ BEGIN
    EXECUTE 'CREATE ROLE ' || quote_ident(in_rolename) || with_clause;
    return true;
 END;
-$$;
+$$ SET SEARCH_PATH FROM CURRENT;
+
+comment on 
 
 CREATE OR REPLACE FUNCTION role_set_password
 (in_rolename text, in_password text, in_valid_until timestamp default 'infinity')
@@ -32,7 +40,7 @@ BEGIN
    EXECUTE 'alter role ' || quote_ident(in_rolename) 
             || ' with password ' || quote_literal(in_password)
             || ' valid until ' || quote_literal(in_valid_until);
-$$;
+$$ SET SEARCH_PATH FROM CURRENT;;
 
 CREATE OR REPLACE FUNCTION create_role(in_rolename text) RETURNS bool
 langauge sql as $$ select create_role($1, '{}'::text[]) $$;
@@ -82,7 +90,7 @@ BEGIN
    END LOOP;
    RETURN TRUE; 
 END;
-$$;
+$$ SET SEARCH_PATH FROM CURRENT;;
 
 create or replace function role_grant_db(in_rolename text, in_dbname text, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
@@ -95,7 +103,7 @@ BEGIN
    EXECUTE 'GRANT ' || array_to_string(in_perms, ', ') || on database ' 
           || quote_ident(in_dbname) || ' TO ' || quote_ident(in_rolename);
 END;
-$$;
+$$ SET SEARCH_PATH FROM CURRENT;;
 
 create or replace function role_grant_schema(in_rolename text, in_schema text, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
@@ -108,7 +116,7 @@ BEGIN
    EXECUTE 'GRANT ' || array_to_string(in_perms, ', ') || on schema ' 
           || quote_ident(in_schema) || ' TO ' || quote_ident(in_rolename);
 END;
-$$;
+$$ SET SEARCH_PATH FROM CURRENT;
 
 create or replace function role_grant_all_schema(in_rolename text, in_schema text, in_type text, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
@@ -125,7 +133,7 @@ BEGIN
    EXECUTE 'GRANT ' || array_to_string(in_perms, ', ') || on all '|| in_type || ' in schema ' 
           || quote_ident(in_schema) || ' TO ' || quote_ident(in_rolename);
 END;
-$$;
+$$ SET SEARCH_PATH FROM CURRENT;
 
 create or replace function role_grant_table(in_rolename text, in_table regclass, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
@@ -138,7 +146,7 @@ BEGIN
    EXECUTE 'GRANT ' || array_to_string(in_perms, ', ') || on table ' 
           || in_table || ' TO ' || quote_ident(in_rolename);
 END;
-$$;
+$$ SET SEARCH PATH FROM CURRENT;
 
 create or replace function role_grant_seq(in_rolename text, in_seq regclass, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
@@ -164,12 +172,20 @@ BEGIN
    EXECUTE 'GRANT ' || array_to_string(in_perms, ', ') || on schema ' 
           || in_proc || ' TO ' || quote_ident(in_rolename);
 END;
-$$;
+$$ SET SEARCH PATH FROM CURRENT;
 
 create or replace function role_grant_role(in_rolename text, in_new_parent text)
 returns void language plpgsql as
 $$
 begin
    EXECUTE 'grant ' || quote_ident(in_new_parent) || ' to ' || quote_ident(in_role);
+END;
+$$ SET SEARCH PATH FROM CURRENT;
+
+CREATE OR REPLACE FUNCTION drop_role(in_rolename text)
+RETURNS VOID LANGUAGE PLPGSQL AS
+$$
+BEGIN
+   EXECUTE 'DROP ROLE ' || quote_ident(rolename);
 END;
 $$;
