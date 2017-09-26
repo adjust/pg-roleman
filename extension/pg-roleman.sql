@@ -146,7 +146,7 @@ BEGIN
    EXECUTE 'GRANT ' || array_to_string(in_perms, ', ') || on table ' 
           || in_table || ' TO ' || quote_ident(in_rolename);
 END;
-$$ SET SEARCH PATH FROM CURRENT;
+$$ SET SEARCH_PATH FROM CURRENT;
 
 create or replace function role_grant_seq(in_rolename text, in_seq regclass, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
@@ -172,7 +172,7 @@ BEGIN
    EXECUTE 'GRANT ' || array_to_string(in_perms, ', ') || on schema ' 
           || in_proc || ' TO ' || quote_ident(in_rolename);
 END;
-$$ SET SEARCH PATH FROM CURRENT;
+$$ SET SEARCH_PATH FROM CURRENT;
 
 create or replace function role_grant_role(in_rolename text, in_new_parent text)
 returns void language plpgsql as
@@ -180,7 +180,7 @@ $$
 begin
    EXECUTE 'grant ' || quote_ident(in_new_parent) || ' to ' || quote_ident(in_role);
 END;
-$$ SET SEARCH PATH FROM CURRENT;
+$$ SET SEARCH_PATH FROM CURRENT;
 
 CREATE OR REPLACE FUNCTION drop_role(in_rolename text)
 RETURNS VOID LANGUAGE PLPGSQL AS
