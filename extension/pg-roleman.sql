@@ -166,3 +166,10 @@ BEGIN
 END;
 $$;
 
+create or replace function role_grant_role(in_rolename text, in_new_parent text)
+returns void language plpgsql as
+$$
+begin
+   EXECUTE 'grant ' || quote_ident(in_new_parent) || ' to ' || quote_ident(in_role);
+END;
+$$;
