@@ -1,0 +1,42 @@
+{
+   "name": "roleman",
+   "abstract": "Role managemnet extension for PostgreSQL",
+   "version": "0.1",
+   "maintainer": [ "Chris Travers <christravers@adjust.com>" ],
+   "license": {
+      "PostgreSQL": "http://www.postgresql.org/about/licence"
+   },
+   "provides": { 
+      "roleman": {
+         "file": "extension/roleman.sql",
+         "version": "0.1",
+         "abstract": "Role management functions for PostgreSQL"
+      }
+   },
+   "meta-spec": {
+     "version": "1.0.0",
+     "url": "http://pgxn.org/meta/spec.txt"
+   },
+   "description": "roleman largely consists of additive permissions management, a reset and a drop function for roles."
+   "tags": [ "administration"],
+   "prereqs": {
+      "runtime": {
+        "requires": {
+           "PostgreSQL": "9.4.0",
+           "plpgsql": 0
+        }
+      }
+   },
+   "resources": {
+       "homepage": "http://big-elephants.com/pg-roleman/",
+       "bugtracker": {
+           "web": "http://github.com/adjust/pg-roleman/issues"
+       },
+       "repository": {
+          "url": "git://github.com/adjust/pg-roleman.git",
+          "web": "http://github.com/adjust/pg-roleman",
+          "type": "git"
+       }
+   }
+}
+
