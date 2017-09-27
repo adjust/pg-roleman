@@ -17,7 +17,7 @@
      "version": "1.0.0",
      "url": "http://pgxn.org/meta/spec.txt"
    },
-   "description": "roleman largely consists of additive permissions management, a reset and a drop function for roles."
+   "description": "roleman largely consists of additive permissions management, a reset and a drop function for roles.",
    "tags": [ "administration"],
    "prereqs": {
       "runtime": {
