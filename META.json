@@ -1,6 +1,6 @@
 {
    "name": "roleman",
-   "abstract": "Role managemnet extension for PostgreSQL",
+   "abstract": "Role management extension for PostgreSQL",
    "version": "0.1.0",
    "maintainer": [ "Chris Travers <christravers@adjust.com>" ],
    "license": {

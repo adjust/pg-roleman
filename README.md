@@ -85,9 +85,19 @@ Major Uses
 
  * Allow users to change their own passwords, but expire after 90 days:
 
+```
    CREATE FUNCTION change_my_password(in_password text) RETURNS VOID
    LANGUAGE SQL SECURITY DEFINER SET search_path=roleman
    as
    $$
    select role_change_password(session_user, in_password, ('today'::date + 90)::timestamp);
    $$;
+```
+
+Future Features
+--------------
+
+Here are some features we'd like to add to this module:
+
+ 1. Revoke rights rather than reset and rebuild
+ 2. Parse acl lists. 
