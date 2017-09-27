@@ -1,7 +1,7 @@
 {
    "name": "roleman",
    "abstract": "Role managemnet extension for PostgreSQL",
-   "version": "0.1",
+   "version": "0.1.0",
    "maintainer": [ "Chris Travers <christravers@adjust.com>" ],
    "license": {
       "PostgreSQL": "http://www.postgresql.org/about/licence"
@@ -9,7 +9,7 @@
    "provides": { 
       "roleman": {
          "file": "extension/roleman.sql",
-         "version": "0.1",
+         "version": "0.1.0",
          "abstract": "Role management functions for PostgreSQL"
       }
    },
