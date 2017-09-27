@@ -2,23 +2,23 @@ set client_min_messages to warning;
 create extension roleman cascade;
 -- whitelist errors
 -- no tables so pick a random number and cast to oid
-select roleman.grant_table(session_user, 1::oid, array['execute', 'drop']);
-ERROR:  bad database permissions for christravers,  table 1, perms execute, drop
+select roleman.grant_table('postgres', 1::oid, array['execute', 'drop']);
+ERROR:  bad database permissions for postgres,  table 1, perms execute, drop
 CONTEXT:  PL/pgSQL function grant_table(text,regclass,text[]) line 4 at RAISE
-select roleman.grant_schema(session_user, 'foo', array['execute']);
-ERROR:  bad permissions for christravers,  schema foo, perms execute
+select roleman.grant_schema('postgres', 'foo', array['execute']);
+ERROR:  bad permissions for postgres,  schema foo, perms execute
 CONTEXT:  PL/pgSQL function grant_schema(text,text,text[]) line 4 at RAISE
-select roleman.grant_schema_all(session_user, 'foo', 'tables', array['execute', 'drop everything']);
-ERROR:  bad database permissions for christravers,  schema foo, type tables, perms execute, drop everything
+select roleman.grant_schema_all('postgres', 'foo', 'tables', array['execute', 'drop everything']);
+ERROR:  bad database permissions for postgres,  schema foo, type tables, perms execute, drop everything
 CONTEXT:  PL/pgSQL function grant_schema_all(text,text,text,text[]) line 5 at RAISE
-select roleman.grant_database(session_user, 'foo', array['execute']);
-ERROR:  bad database permissions for christravers, dbname foo, perms execute
+select roleman.grant_database('postgres', 'foo', array['execute']);
+ERROR:  bad database permissions for postgres, dbname foo, perms execute
 CONTEXT:  PL/pgSQL function grant_database(text,text,text[]) line 4 at RAISE
-select roleman.grant_function(session_user, 1::OID, array['wheeee']);
-ERROR:  bad database permissions for christravers,  function 1, perms wheeee
+select roleman.grant_function('postgres', 1::OID, array['wheeee']);
+ERROR:  bad database permissions for postgres,  function 1, perms wheeee
 CONTEXT:  PL/pgSQL function grant_function(text,regprocedure,text[]) line 4 at RAISE
-select roleman.grant_seq(session_user, 1::oid, array['execute']);
-ERROR:  bad database permissions for christravers,  sequence 1, perms execute
+select roleman.grant_seq('postgres', 1::oid, array['execute']);
+ERROR:  bad database permissions for postgres,  sequence 1, perms execute
 CONTEXT:  PL/pgSQL function grant_seq(text,regclass,text[]) line 4 at RAISE
 create schema testing;
 create table testing.foo(id int);

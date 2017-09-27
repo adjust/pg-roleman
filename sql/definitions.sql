@@ -4,12 +4,12 @@ create extension roleman cascade;
 -- whitelist errors
 
 -- no tables so pick a random number and cast to oid
-select roleman.grant_table(session_user, 1::oid, array['execute', 'drop']);
-select roleman.grant_schema(session_user, 'foo', array['execute']);
-select roleman.grant_schema_all(session_user, 'foo', 'tables', array['execute', 'drop everything']);
-select roleman.grant_database(session_user, 'foo', array['execute']);
-select roleman.grant_function(session_user, 1::OID, array['wheeee']);
-select roleman.grant_seq(session_user, 1::oid, array['execute']);
+select roleman.grant_table('postgres', 1::oid, array['execute', 'drop']);
+select roleman.grant_schema('postgres', 'foo', array['execute']);
+select roleman.grant_schema_all('postgres', 'foo', 'tables', array['execute', 'drop everything']);
+select roleman.grant_database('postgres', 'foo', array['execute']);
+select roleman.grant_function('postgres', 1::OID, array['wheeee']);
+select roleman.grant_seq('postgres', 1::oid, array['execute']);
 
 create schema testing;
 create table testing.foo(id int);
