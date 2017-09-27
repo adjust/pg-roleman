@@ -1,0 +1,6 @@
+default_version = '0.1'
+directory = 'extension'
+requires = 'plpgsql'
+relocatable = 'false'
+superuser = 'true'
+schema = 'roleman'
