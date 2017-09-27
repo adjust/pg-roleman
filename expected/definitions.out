@@ -1,5 +1,5 @@
 set client_min_messages to warning;
-create extension roleman cascade;
+create extension roleman;
 -- whitelist errors
 -- no tables so pick a random number and cast to oid
 select roleman.grant_table('postgres', 1::oid, array['execute', 'drop']);

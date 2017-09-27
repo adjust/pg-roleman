@@ -1,5 +1,5 @@
 set client_min_messages to warning;
-create extension roleman cascade;
+create extension roleman;
 
 -- whitelist errors
 
