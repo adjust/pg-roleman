@@ -42,11 +42,11 @@ API Reference
  * roleman.create_role(new_rolename, [WITH attributes])
    Creates a new role.  Note that WITH does NOT support setting passwords
 
- * roleman.role_set_password(rolename, password [, valid_until])
+ * roleman.set_password(rolename, password [, valid_until])
    Sets a role's password.  If valid_until is not set, it is set until 
    'infinity'
 
- * roleman.role_blank_permissions(rolename)
+ * roleman.blank_permissions(rolename)
    Removes all permissions for a role within the current database.
 
  * roleman.grant_db(rolename, databasename, permissions)
@@ -55,14 +55,19 @@ API Reference
  * roleman.grant_schema(rolename, schemaname, permissions)
    Permissions may be usage, create, and all
 
- * roleman.grant_all_schema(rolename, schemaname, object_type, permissions)
+ * roleman.grant_schema_all(rolename, schemaname, object_type, permissions)
    Grants permissions ON ALL object_typw IN SCHEMA
    Permissions are whitelisted to all keywords but if you grant execute
    on a table you should expect an error
 
  * roleman.grant_table(rolename, tablename, permissions)
+   Permissions must be all, select, update, insert, and/or delete
+
  * roleman.grant_function(rolename, tablename, permissions)
+   permissions must be all or execute
+
  * roleman.grant_sequence(rolename, tablename, permissions)
+   Permissions must be all or usage
 
  * roleman.drop_role(rolename)
 

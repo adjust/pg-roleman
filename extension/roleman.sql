@@ -11,15 +11,17 @@ an array of text elements in lower case.  Intended for use
 with whitelisting SQL keywords, so elements must not contain
 the string ':~:'$$;
 
-CREATE OR REPLACE FUNCTION create_role(in_rolename text, in_attrs text[] default '{}')
+CREATE OR REPLACE FUNCTION create_role(IN in_rolename text, IN in_attrs text[] default '{}')
 RETURNS bool LANGUAGE plpgsql as
 $$
 DECLARE with_clause text = '';
 BEGIN
    IF not (array_lower(in_attrs) 
            <@ 
-          array['superuser'::text, 'replication', 'login', 'inherit', 'nologin', 'noinherit'])
-   THEN RAISE EXCEPTION 'Bad option for role %, options were %', in_rolname, 
+          array['superuser'::text, 'replication', 'login', 'inherit', 'nologin', 'noinherit',
+                'nosuperuser', 'nocreatedb', 'noreplication', 'createdb', 'createrole',
+                'nocreaterole'])
+   THEN RAISE EXCEPTION 'Bad option for role %, options were %', in_rolename, 
           array_to_string(in_attrs, ', ');
    END IF;
    IF array_upper(in_attrs, 1) > 0 THEN
@@ -45,9 +47,6 @@ BEGIN
 END;
 $$ SET SEARCH_PATH FROM CURRENT;;
 
-CREATE OR REPLACE FUNCTION create_role(in_rolename text) RETURNS bool
-language sql as $$ select create_role($1, '{}'::text[]) $$;
-
 CREATE OR REPLACE FUNCTION role_blank_perms(in_rolename text)
 RETURNS BOOL 
 language plpgsql as $$
@@ -60,25 +59,14 @@ BEGIN
    -- These may be overinclusive but better that than under-inclusive.
 
    -- revoke all from current database
-   EXECUTE 'REVOKE ALL ON ' || quote_ident(current_database()) ' FROM ' || quote_ident(in_rolename);
-   -- pgclass gives us sequences and tables
-   FOR permrec IN SELECT oid, * FROM pg_class WHERE relacl::text like '%' || in_rolename || '%'
-   LOOP
-       acltype = CASE WHEN permrec.relkind = 's' THEN 'SEQUENCE' ELSE 'TABLE' END;
-       EXECUTE 'REVOKE ALL ON ' || acltype || ' ' || permrec.oid::regclass 
-               || ' FROM ' || quote_ident(in_rolename);
-   END LOOP;
+   EXECUTE 'REVOKE ALL ON DATABASE ' || quote_ident(current_database()) || ' FROM ' || quote_ident(in_rolename);
 
-   -- pg_proc gives us functions
-   FOR permrec IN SELECT oid, * FROM pg_proc WHERE proacl::text like '%' || in_rolename || '%'
+   FOR permrec IN SELECT oid, * FROM pg_namespace
    LOOP
-      EXECUTE 'REVOKE ALL ON FUNCTION ' || perlrec.oid::regprocedure || ' FROM ' || quote_ident(in_rolename);
-   END LOOP;
-
-   -- pg_namespace gives us schemas
-   FOR permrec IN SELECT oid, * FROM pg_namespace WHERE nspacl::text like '%' || in_rolename || '%'
-   LOOP
-      EXECUTE 'REVOKE ALL ON SCHEMA ' || perlrec.oid::regprocedure || ' FROM ' || quote_ident(in_rolename);
+      EXECUTE 'REVOKE ALL ON ALL TABLES IN SCHEMA ' || quote_ident(permrec.nspname) || ' FROM ' || quote_ident(in_rolename);
+      EXECUTE 'REVOKE ALL ON ALL SEQUENCES IN SCHEMA ' || quote_ident(permrec.nspname) || ' FROM ' || quote_ident(in_rolename);
+      EXECUTE 'REVOKE ALL ON ALL FUNCTIONS IN SCHEMA ' || quote_ident(permrec.nspname) || ' FROM ' || quote_ident(in_rolename);
+      EXECUTE 'REVOKE ALL ON SCHEMA ' || quote_ident(permrec.nspname) || ' FROM ' || quote_ident(in_rolename);
    END LOOP;
 
    -- finally roles we have been granted
@@ -95,7 +83,7 @@ BEGIN
 END;
 $$ SET SEARCH_PATH FROM CURRENT;;
 
-create or replace function role_grant_db(in_rolename text, in_dbname text, in_perms text[])
+create or replace function grant_database(in_rolename text, in_dbname text, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
 $$
 BEGIN
@@ -108,7 +96,7 @@ BEGIN
 END;
 $$ SET SEARCH_PATH FROM CURRENT;;
 
-create or replace function role_grant_schema(in_rolename text, in_schema text, in_perms text[])
+create or replace function grant_schema(in_rolename text, in_schema text, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
 $$
 BEGIN
@@ -121,7 +109,7 @@ BEGIN
 END;
 $$ SET SEARCH_PATH FROM CURRENT;
 
-create or replace function role_grant_all_schema(in_rolename text, in_schema text, in_type text, in_perms text[])
+create or replace function grant_schema_all(in_rolename text, in_schema text, in_type text, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
 $$
 BEGIN
@@ -138,7 +126,7 @@ BEGIN
 END;
 $$ SET SEARCH_PATH FROM CURRENT;
 
-create or replace function role_grant_table(in_rolename text, in_table regclass, in_perms text[])
+create or replace function grant_table(in_rolename text, in_table regclass, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
 $$
 BEGIN
@@ -151,7 +139,7 @@ BEGIN
 END;
 $$ SET SEARCH_PATH FROM CURRENT;
 
-create or replace function role_grant_seq(in_rolename text, in_seq regclass, in_perms text[])
+create or replace function grant_seq(in_rolename text, in_seq regclass, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
 $$
 BEGIN
@@ -162,9 +150,9 @@ BEGIN
    EXECUTE 'GRANT ' || array_to_string(in_perms, ', ') || ' on sequence ' 
           || in_seq || ' TO ' || quote_ident(in_rolename);
 END;
-$$;
+$$ SET SEARCH_PATH FROM CURRENT;
 
-create or replace function role_grant_function(in_rolename text, in_proc regprocedure, in_perms text[])
+create or replace function grant_function(in_rolename text, in_proc regprocedure, in_perms text[])
 RETURNS VOID LANGUAGE PLPGSQL AS
 $$
 BEGIN
@@ -181,7 +169,7 @@ create or replace function role_grant_role(in_rolename text, in_new_parent text)
 returns void language plpgsql as
 $$
 begin
-   EXECUTE 'grant ' || quote_ident(in_new_parent) || ' to ' || quote_ident(in_role);
+   EXECUTE 'grant ' || quote_ident(in_new_parent) || ' to ' || quote_ident(in_rolename);
 END;
 $$ SET SEARCH_PATH FROM CURRENT;
 
@@ -189,6 +177,6 @@ CREATE OR REPLACE FUNCTION drop_role(in_rolename text)
 RETURNS VOID LANGUAGE PLPGSQL AS
 $$
 BEGIN
-   EXECUTE 'DROP ROLE ' || quote_ident(rolename);
+   EXECUTE 'DROP ROLE ' || quote_ident(in_rolename);
 END;
 $$;
