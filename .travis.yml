@@ -11,4 +11,4 @@ install:
 script:
   - make installcheck
 after_failure:
-  - cat /home/travis/build/adjust/pg-roleman/results/definitions.out.diff 
+  - cat /home/travis/build/adjust/pg-roleman/regression.diffs
