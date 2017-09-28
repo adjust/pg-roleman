@@ -16,7 +16,21 @@ are handled and escaped properly regardless of inputs.
 
 Permissions are whitelisted.
 
-**Conventions**
+Compatibility
+--------------
+This module has been tested on 9.4 and 9.6.  On 9.4 the regression
+failures are false positives due to output format changes to error
+messages.  On these versions installcheck failures should be manually
+reviewed rather than assumed to be valid.
+
+The installcheck failures occur because the error-throwing routines
+are heavily tested.  Parts of the guarantees we make are that unsafe
+behavior is specifically disallowed.
+
+There are no known problems with PostreSQL 10 either.
+
+Conventions
+------------
 
 The basic form of the argument list is:
 

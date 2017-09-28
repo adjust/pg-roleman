@@ -1,4 +1,5 @@
 set client_min_messages to warning;
+set log_error_verbosity to terse;
 create extension roleman;
 
 -- whitelist errors
