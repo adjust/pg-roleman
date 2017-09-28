@@ -69,8 +69,6 @@ set role "bobby'; drop table testing.foo; --";
 -- permission denied errors
 select * from testing.foo;
 ERROR:  permission denied for schema testing at character 15
-select * from testing.foo(null, null);
-ERROR:  permission denied for schema testing at character 15
 reset role;
 select roleman.grant_schema(r, s, array['all'])
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r

@@ -55,7 +55,6 @@ set role "bobby'; drop table testing.foo; --";
 
 -- permission denied errors
 select * from testing.foo;
-select * from testing.foo(null, null);
 
 reset role;
 
