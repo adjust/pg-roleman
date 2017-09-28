@@ -1,25 +1,20 @@
 set client_min_messages to warning;
 create extension roleman;
+\set VERBOSITY terse
 -- whitelist errors
 -- no tables so pick a random number and cast to oid
 select roleman.grant_table('postgres', 1::oid, array['execute', 'drop']);
 ERROR:  bad database permissions for postgres,  table 1, perms execute, drop
-CONTEXT:  PL/pgSQL function grant_table(text,regclass,text[]) line 4 at RAISE
 select roleman.grant_schema('postgres', 'foo', array['execute']);
 ERROR:  bad permissions for postgres,  schema foo, perms execute
-CONTEXT:  PL/pgSQL function grant_schema(text,text,text[]) line 4 at RAISE
 select roleman.grant_schema_all('postgres', 'foo', 'tables', array['execute', 'drop everything']);
 ERROR:  bad database permissions for postgres,  schema foo, type tables, perms execute, drop everything
-CONTEXT:  PL/pgSQL function grant_schema_all(text,text,text,text[]) line 5 at RAISE
 select roleman.grant_database('postgres', 'foo', array['execute']);
 ERROR:  bad database permissions for postgres, dbname foo, perms execute
-CONTEXT:  PL/pgSQL function grant_database(text,text,text[]) line 4 at RAISE
 select roleman.grant_function('postgres', 1::OID, array['wheeee']);
 ERROR:  bad database permissions for postgres,  function 1, perms wheeee
-CONTEXT:  PL/pgSQL function grant_function(text,regprocedure,text[]) line 4 at RAISE
 select roleman.grant_seq('postgres', 1::oid, array['execute']);
 ERROR:  bad database permissions for postgres,  sequence 1, perms execute
-CONTEXT:  PL/pgSQL function grant_seq(text,regclass,text[]) line 4 at RAISE
 create schema testing;
 create table testing.foo(id int);
 create table testing."foo(id int)"" drop table testing.foo; --"(id int); 
@@ -44,7 +39,6 @@ create table testing3.foo(id int);
 -- die with error
 select roleman.create_role('bobby"; drop table testing.foo; --', array['login', 'password ''foo''']);
 ERROR:  Bad option for role bobby"; drop table testing.foo; --, options were login, password 'foo'
-CONTEXT:  PL/pgSQL function create_role(text,text[]) line 9 at RAISE
 -- succeed
 select roleman.create_role('bobby"; drop table testing.foo; --', array['login', 'noinherit']);
  create_role 
@@ -74,13 +68,9 @@ select roleman.role_blank_perms('bobby"; drop table testing.foo; --');
 set role "bobby'; drop table testing.foo; --";
 -- permission denied errors
 select * from testing.foo;
-ERROR:  permission denied for schema testing
-LINE 1: select * from testing.foo;
-                      ^
+ERROR:  permission denied for schema testing at character 15
 select * from testing.foo(null, null);
-ERROR:  permission denied for schema testing
-LINE 1: select * from testing.foo(null, null);
-                      ^
+ERROR:  permission denied for schema testing at character 15
 reset role;
 select roleman.grant_schema(r, s, array['all'])
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r
@@ -168,7 +158,6 @@ select roleman.grant_schema_all(r, s, 'table', array['select'])
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r
   cross join unnest (array['testing''; drop table testing.foo; --', 'testing; drop table testing.foo; --', 'testing"; drop table testing.foo; --']) s;
 ERROR:  bad tyoe table
-CONTEXT:  PL/pgSQL function grant_schema_all(text,text,text,text[]) line 9 at RAISE
 SET ROLE "bobby'; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
  id 
@@ -219,9 +208,7 @@ ERROR:  permission denied for relation foo
 RESET ROLE;
 select roleman.grant_function(r, testing.foo::regproc::oid::regprocedure, array['execute']))
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r;
-ERROR:  syntax error at or near ")"
-LINE 1: ... testing.foo::regproc::oid::regprocedure, array['execute']))
-                                                                      ^
+ERROR:  syntax error at or near ")" at character 92
 SET ROLE "bobby'; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
  id 
