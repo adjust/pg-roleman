@@ -18,16 +18,13 @@ Permissions are whitelisted.
 
 Compatibility
 --------------
-This module has been tested on 9.4 and 9.6.  On 9.4 the regression
-failures are false positives due to output format changes to error
-messages.  On these versions installcheck failures should be manually
-reviewed rather than assumed to be valid.
+As of 0.1.2, installcheck works properly against 9.4 through 9.6.
+There are no known or expected issues with PostgreSQL 10, but this
+will be further tested.  Test case failures may need to be manually
+reviewed in that case.
 
-The installcheck failures occur because the error-throwing routines
-are heavily tested.  Parts of the guarantees we make are that unsafe
-behavior is specifically disallowed.
-
-There are no known problems with PostreSQL 10 either.
+There are no changes to the extension between 0.1.0 and 0.1.2.
+All changes are in documentation and test case compatibility.
 
 Conventions
 ------------
@@ -55,6 +52,9 @@ API Reference
 
  * roleman.create_role(new_rolename, [WITH attributes])
    Creates a new role.  Note that WITH does NOT support setting passwords
+
+ * roleman.alter_base(rolename, WITH attribute)
+   applies the requested WITH attributes via ALTER user.
 
  * roleman.set_password(rolename, password [, valid_until])
    Sets a role's password.  If valid_until is not set, it is set until 
@@ -115,3 +115,6 @@ Here are some features we'd like to add to this module:
 
  1. Revoke rights rather than reset and rebuild
  2. Parse acl lists. 
+ 3. Query WITH attributes of roles
+ 4. ALTER ROLE .... SET x TO Y
+

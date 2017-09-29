@@ -52,6 +52,12 @@ select roleman.create_role('bobby_tables"; foo', array['inherit', 'nologin']);
  t
 (1 row)
 
+select roleman.alter_base('bobby_tables"; foo', array['noinherit', 'login']);
+ alter_base 
+------------
+ t
+(1 row)
+
 select roleman.create_role('bobby''; drop table testing.foo; --');
  create_role 
 -------------

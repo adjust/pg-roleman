@@ -46,6 +46,7 @@ select roleman.create_role('bobby"; drop table testing.foo; --', array['login', 
 -- succeed
 select roleman.create_role('bobby"; drop table testing.foo; --', array['login', 'noinherit']);
 select roleman.create_role('bobby_tables"; foo', array['inherit', 'nologin']);
+select roleman.alter_base('bobby_tables"; foo', array['noinherit', 'login']);
 select roleman.create_role('bobby''; drop table testing.foo; --');
 
 -- succeed no perms
