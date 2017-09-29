@@ -1,5 +1,3 @@
-SET search_path to roleman, pg_catalog, pg_temp;
-
 CREATE FUNCTION array_lower(in_array text[])
 returns text[]
 language sql immutable as

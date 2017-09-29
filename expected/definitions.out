@@ -28,6 +28,15 @@ create schema "testing'; drop table testing.foo; --";
 create table "testing'; drop table testing.foo; --".foo();
 create schema "testing""; drop table testing.foo; --";
 create table "testing""; drop table testing.foo; --".foo();
+create function pg_temp.array_lower(text[])
+returns text[]
+language plpgsql as
+$$
+BEGIN
+RAISE EXCEPTION 'Bobby Tables Strikes Again';
+return array['foo'::text];
+END;
+$$;
 create sequence testing."foo1"" drop table testing.foo; --";
 create function testing.foo(testing."foo(id int)"" drop table testing.foo; --", testing."foo(id int)' drop table testing.foo; --")
 returns bool language sql as $$ select true; $$;

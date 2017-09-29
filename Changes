@@ -1,6 +1,11 @@
 Changelog for Roleman
 ----------------------
 
+2017-09-29  0.2.1
+            Added missing missing files for 0.2.x
+            Tests now test against SQL object injection
+            Added upgrade tests.
+
 2017-09-29  0.2.0
             Added roleman.alter_base(rolename, attrs)
             Tests now properly pass on 9.4 and higher

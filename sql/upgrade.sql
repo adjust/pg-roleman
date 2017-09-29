@@ -1,5 +1,7 @@
 set client_min_messages to warning;
-create extension roleman;
+drop extension roleman;
+create extension roleman version '0.2.0';
+alter extension roleman update;
 \set VERBOSITY terse
 
 -- whitelist errors
@@ -12,6 +14,7 @@ select roleman.grant_database('postgres', 'foo', array['execute']);
 select roleman.grant_function('postgres', 1::OID, array['wheeee']);
 select roleman.grant_seq('postgres', 1::oid, array['execute']);
 
+drop schema testing cascade;;
 create schema testing;
 create table testing.foo(id int);
 create table testing."foo(id int)"" drop table testing.foo; --"(id int); 
@@ -21,10 +24,13 @@ insert into testing.foo values (1);
 insert into  testing."foo(id int)"" drop table testing.foo; --" values (2); 
 insert into testing."foo(id int)' drop table testing.foo; --" values (3); 
 
+drop schema "testing; drop table testing.foo; --" cascade;
 create schema "testing; drop table testing.foo; --";
 create table "testing; drop table testing.foo; --".foo();
+drop schema "testing'; drop table testing.foo; --" CASCADE;
 create schema "testing'; drop table testing.foo; --";
 create table "testing'; drop table testing.foo; --".foo();
+drop schema "testing""; drop table testing.foo; --" CASCADE;
 create schema "testing""; drop table testing.foo; --";
 create table "testing""; drop table testing.foo; --".foo();
 
@@ -39,13 +45,16 @@ END;
 $$;
 
 create sequence testing."foo1"" drop table testing.foo; --";
+create sequence testing."foo1"" drop table testing.foo; --";
 
 create function testing.foo(testing."foo(id int)"" drop table testing.foo; --", testing."foo(id int)' drop table testing.foo; --")
 returns bool language sql as $$ select true; $$;
 
+drop schema testing2 cascade;
 create schema testing2;
 create table testing2.foo(id int);
 
+drop schema testing3 cascade;
 create schema testing3;
 create table testing3.foo(id int);
 

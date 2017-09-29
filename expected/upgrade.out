@@ -1,33 +1,39 @@
 set client_min_messages to warning;
-create extension roleman;
+drop extension roleman;
+create extension roleman version '0.2.0';
+alter extension roleman update;
 \set VERBOSITY terse
-
 -- whitelist errors
-
 -- no tables so pick a random number and cast to oid
 select roleman.grant_table('postgres', 1::oid, array['execute', 'drop']);
+ERROR:  bad database permissions for postgres,  table 1, perms execute, drop
 select roleman.grant_schema('postgres', 'foo', array['execute']);
+ERROR:  bad permissions for postgres,  schema foo, perms execute
 select roleman.grant_schema_all('postgres', 'foo', 'tables', array['execute', 'drop everything']);
+ERROR:  bad database permissions for postgres,  schema foo, type tables, perms execute, drop everything
 select roleman.grant_database('postgres', 'foo', array['execute']);
+ERROR:  bad database permissions for postgres, dbname foo, perms execute
 select roleman.grant_function('postgres', 1::OID, array['wheeee']);
+ERROR:  bad database permissions for postgres,  function 1, perms wheeee
 select roleman.grant_seq('postgres', 1::oid, array['execute']);
-
+ERROR:  bad database permissions for postgres,  sequence 1, perms execute
+drop schema testing cascade;;
 create schema testing;
 create table testing.foo(id int);
 create table testing."foo(id int)"" drop table testing.foo; --"(id int); 
 create table testing."foo(id int)' drop table testing.foo; --"(id int); 
-
 insert into testing.foo values (1);
 insert into  testing."foo(id int)"" drop table testing.foo; --" values (2); 
 insert into testing."foo(id int)' drop table testing.foo; --" values (3); 
-
+drop schema "testing; drop table testing.foo; --" cascade;
 create schema "testing; drop table testing.foo; --";
 create table "testing; drop table testing.foo; --".foo();
+drop schema "testing'; drop table testing.foo; --" CASCADE;
 create schema "testing'; drop table testing.foo; --";
 create table "testing'; drop table testing.foo; --".foo();
+drop schema "testing""; drop table testing.foo; --" CASCADE;
 create schema "testing""; drop table testing.foo; --";
 create table "testing""; drop table testing.foo; --".foo();
-
 create function pg_temp.array_lower(text[])
 returns text[]
 language plpgsql as
@@ -37,102 +43,242 @@ RAISE EXCEPTION 'Bobby Tables Strikes Again';
 return array['foo'::text];
 END;
 $$;
-
 create sequence testing."foo1"" drop table testing.foo; --";
-
+create sequence testing."foo1"" drop table testing.foo; --";
+ERROR:  relation "foo1" drop table testing.foo; --" already exists
 create function testing.foo(testing."foo(id int)"" drop table testing.foo; --", testing."foo(id int)' drop table testing.foo; --")
 returns bool language sql as $$ select true; $$;
-
+drop schema testing2 cascade;
 create schema testing2;
 create table testing2.foo(id int);
-
+drop schema testing3 cascade;
 create schema testing3;
 create table testing3.foo(id int);
-
 -- Create roles for Bobby Tables
 -- die with error
 select roleman.create_role('bobby"; drop table testing.foo; --', array['login', 'password ''foo''']);
-
+ERROR:  Bad option for role bobby"; drop table testing.foo; --, options were login, password 'foo'
 -- succeed
 select roleman.create_role('bobby"; drop table testing.foo; --', array['login', 'noinherit']);
+ create_role 
+-------------
+ t
+(1 row)
+
 select roleman.create_role('bobby_tables"; foo', array['inherit', 'nologin']);
+ create_role 
+-------------
+ t
+(1 row)
+
 select roleman.alter_base('bobby_tables"; foo', array['noinherit', 'login']);
+ alter_base 
+------------
+ t
+(1 row)
+
 select roleman.create_role('bobby''; drop table testing.foo; --');
+ create_role 
+-------------
+ t
+(1 row)
 
 -- succeed no perms
 select roleman.role_blank_perms('bobby"; drop table testing.foo; --');
+ role_blank_perms 
+------------------
+ t
+(1 row)
 
 set role "bobby'; drop table testing.foo; --";
-
 -- permission denied errors
 select * from testing.foo;
-
+ERROR:  permission denied for schema testing at character 15
 reset role;
-
 select roleman.grant_schema(r, s, array['all'])
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r
   cross join unnest (array['testing', 'testing''; drop table testing.foo; --', 'testing; drop table testing.foo; --', 'testing"; drop table testing.foo; --']) s;
+ grant_schema 
+--------------
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+(12 rows)
 
 select roleman.grant_table(r, t.oid::regclass, array['select'])
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r
  CROSS JOIN
        pg_class t
  WHERE t.relname like '%--%' and t.relkind = 'r';
+ grant_table 
+-------------
+ 
+ 
+ 
+ 
+ 
+ 
+(6 rows)
 
 SET ROLE "bobby'; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
-select * from testing."foo(id int)' drop table testing.foo; --"; 
-SELECT * FROM testing.foo;
-RESET ROLE;
+ id 
+----
+  2
+(1 row)
 
+select * from testing."foo(id int)' drop table testing.foo; --"; 
+ id 
+----
+  3
+(1 row)
+
+SELECT * FROM testing.foo;
+ERROR:  permission denied for relation foo
+RESET ROLE;
 SET ROLE "bobby_tables""; foo";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
-select * from testing."foo(id int)' drop table testing.foo; --"; 
-SELECT * FROM testing.foo;
-RESET ROLE;
+ id 
+----
+  2
+(1 row)
 
+select * from testing."foo(id int)' drop table testing.foo; --"; 
+ id 
+----
+  3
+(1 row)
+
+SELECT * FROM testing.foo;
+ERROR:  permission denied for relation foo
+RESET ROLE;
 SET ROLE "bobby""; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
-select * from testing."foo(id int)' drop table testing.foo; --"; 
-SELECT * FROM testing.foo;
-RESET ROLE;
+ id 
+----
+  2
+(1 row)
 
+select * from testing."foo(id int)' drop table testing.foo; --"; 
+ id 
+----
+  3
+(1 row)
+
+SELECT * FROM testing.foo;
+ERROR:  permission denied for relation foo
+RESET ROLE;
 select roleman.grant_schema_all(r, s, 'table', array['select'])
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r
   cross join unnest (array['testing''; drop table testing.foo; --', 'testing; drop table testing.foo; --', 'testing"; drop table testing.foo; --']) s;
-
+ERROR:  bad tyoe table
 SET ROLE "bobby'; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
-select * from testing."foo(id int)' drop table testing.foo; --"; 
-SELECT * FROM testing.foo;
-RESET ROLE;
+ id 
+----
+  2
+(1 row)
 
+select * from testing."foo(id int)' drop table testing.foo; --"; 
+ id 
+----
+  3
+(1 row)
+
+SELECT * FROM testing.foo;
+ERROR:  permission denied for relation foo
+RESET ROLE;
 SET ROLE "bobby_tables""; foo";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
-select * from testing."foo(id int)' drop table testing.foo; --"; 
-SELECT * FROM testing.foo;
-RESET ROLE;
+ id 
+----
+  2
+(1 row)
 
+select * from testing."foo(id int)' drop table testing.foo; --"; 
+ id 
+----
+  3
+(1 row)
+
+SELECT * FROM testing.foo;
+ERROR:  permission denied for relation foo
+RESET ROLE;
 SET ROLE "bobby""; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
-select * from testing."foo(id int)' drop table testing.foo; --"; 
-SELECT * FROM testing.foo;
-RESET ROLE;
+ id 
+----
+  2
+(1 row)
 
+select * from testing."foo(id int)' drop table testing.foo; --"; 
+ id 
+----
+  3
+(1 row)
+
+SELECT * FROM testing.foo;
+ERROR:  permission denied for relation foo
+RESET ROLE;
 select roleman.grant_function(r, testing.foo::regproc::oid::regprocedure, array['execute']))
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r;
-
+ERROR:  syntax error at or near ")" at character 92
 SET ROLE "bobby'; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
+ id 
+----
+  2
+(1 row)
+
 reset role;
-
 select roleman.role_blank_perms('bobby"; drop table testing.foo; --');
+ role_blank_perms 
+------------------
+ t
+(1 row)
+
 select roleman.drop_role('bobby"; drop table testing.foo; --');
+ drop_role 
+-----------
+ 
+(1 row)
+
 select roleman.role_blank_perms('bobby''; drop table testing.foo; --');
+ role_blank_perms 
+------------------
+ t
+(1 row)
+
 select roleman.drop_role('bobby''; drop table testing.foo; --');
+ drop_role 
+-----------
+ 
+(1 row)
+
 select roleman.role_blank_perms('bobby_tables"; foo');
+ role_blank_perms 
+------------------
+ t
+(1 row)
+
 select roleman.drop_role('bobby_tables"; foo');
-
-
+ drop_role 
+-----------
+ 
+(1 row)
 
 select 'testing.foo'::regclass::text;
+    text     
+-------------
+ testing.foo
+(1 row)
+
