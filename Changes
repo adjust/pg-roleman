@@ -1,7 +1,14 @@
 Changelog for Roleman
 ----------------------
 
-2017-09-27  Documentation and manifest improvements
+2017-09-29  0.2.0
+            Added roleman.alter_base(rolename, attrs)
+            Tests now properly pass on 9.4 and higher
+            Some documentation improvements
 
-2017-09-26  First Version Released to the World
+2017-09-27  0.1.1
+            Documentation and manifest improvements
+
+2017-09-26  0.1
+            First Version Released to the World
 
