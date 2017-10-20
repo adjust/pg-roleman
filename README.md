@@ -83,6 +83,21 @@ API Reference
  * roleman.grant_sequence(rolename, tablename, permissions)
    Permissions must be all or usage
 
+ * roleman.set_guc(rolename, settingname, value)
+   Sets default guc setting value for role.  Setting must
+   be found in pg_settings.
+
+ * roleman.set_guc_from_current(rolename, settingname)
+   Sets the rolename's default setting (validated via pg_settings)
+   to the current session value
+
+ * roleman.set_search_path(rolename, schema_array)
+   Sets the role's search_path to the schemas in the schema array.
+
+ * roleman.set_connection_limit(rolename, connection_limit)
+   A;ters the role so that the role can have no more than connection_limit
+   simultaneous connections.
+
  * roleman.drop_role(rolename)
 
 Major Uses
