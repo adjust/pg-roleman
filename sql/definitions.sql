@@ -119,8 +119,15 @@ select * from testing."foo(id int)' drop table testing.foo; --";
 SELECT * FROM testing.foo;
 RESET ROLE;
 
-select roleman.grant_function(r, testing.foo::regproc::oid::regprocedure, array['execute']))
+select roleman.grant_function(r, 'testing.foo'::regproc::oid::regprocedure, array['execute'])
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r;
+
+
+SELECT roleman.set_guc('bobby''; drop table testing.foo; --', 'foooo', 'bar');
+SELECT roleman.set_guc('bobby''; drop table testing.foo; --', 'statement_timeout', '1');
+SELECT roleman.set_guc_from_current('bobby''; drop table testing.foo; --', 'lock_timeout');
+SELECT roleman.set_search_path('bobby''; drop table testing.foo; --', array['ooops']);
+
 
 SET ROLE "bobby'; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
