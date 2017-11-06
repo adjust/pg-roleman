@@ -1,6 +1,11 @@
 Changelog for Roleman
 ----------------------
 
+2017-10-19  0.3.0
+            Added role-level settings/guc functions
+            Added ability to set max connections
+            Added ability to set per-role search paths
+
 2017-09-29  0.2.1
             Added missing missing files for 0.2.x
             Tests now test against SQL object injection

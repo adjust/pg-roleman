@@ -219,9 +219,35 @@ select * from testing."foo(id int)' drop table testing.foo; --";
 SELECT * FROM testing.foo;
 ERROR:  permission denied for relation foo
 RESET ROLE;
-select roleman.grant_function(r, testing.foo::regproc::oid::regprocedure, array['execute']))
+select roleman.grant_function(r, 'testing.foo'::regproc::oid::regprocedure, array['execute'])
   FROM unnest(array['bobby"; drop table testing.foo; --'::text, 'bobby_tables"; foo', 'bobby''; drop table testing.foo; --']) r;
-ERROR:  syntax error at or near ")" at character 92
+ grant_function 
+----------------
+ 
+ 
+ 
+(3 rows)
+
+SELECT roleman.set_guc('bobby''; drop table testing.foo; --', 'foooo', 'bar');
+ERROR:  Setting "foooo" does not exist
+SELECT roleman.set_guc('bobby''; drop table testing.foo; --', 'statement_timeout', '1');
+ set_guc 
+---------
+ 
+(1 row)
+
+SELECT roleman.set_guc_from_current('bobby''; drop table testing.foo; --', 'lock_timeout');
+ set_guc_from_current 
+----------------------
+ 
+(1 row)
+
+SELECT roleman.set_search_path('bobby''; drop table testing.foo; --', array['ooops']);
+ set_search_path 
+-----------------
+ 
+(1 row)
+
 SET ROLE "bobby'; drop table testing.foo; --";
 select * from  testing."foo(id int)"" drop table testing.foo; --"; 
  id 
