@@ -31,7 +31,6 @@ matrix:
            - sudo make install
        env:
           - POSTGRESQL=9.6
-   allow_failures:
      - # addons: postgresql: 10
        install:
            - sudo service postgresql stop
