@@ -45,6 +45,9 @@ matrix:
            - sudo make install
        env:
           - POSTGRESQL=10
+   allow_failures:
+     - addons: 
+          postgresql: 9.3
 script:
   - make installcheck
 after_failure:
